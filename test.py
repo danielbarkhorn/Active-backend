@@ -1,9 +1,6 @@
-import pandas as pd
-import requests
+import dataset
+from flask import jsonify
 
-header = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-jsonData = pd.read_csv('./data/iris.csv', header=None).to_json()
-print(jsonData)
+iris = dataset.Dataset()
 
-resp = requests.post("http://0.0.0.0:8000/predict", data = jsonData, headers=header)
-print(resp.status_code)
+print(jsonify(iris.getLabeledData()))

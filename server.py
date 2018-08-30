@@ -1,6 +1,4 @@
 import os
-import pandas as pd
-from sklearn.externals import joblib
 import dataset
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -11,10 +9,10 @@ CORS(app)
 @app.route('/restart', methods=['GET'])
 
 def apicall():
-    data = pd.read_csv('./data/iris.csv', header=None)
+    iris = dataset.Dataset()
+    iris_labeled = iris.getLabeledData()
 
-    responses = jsonify(predictions=data.to_json(orient="records"))
-    responses.status_code = 200
-    responses.header('Access-Control-Allow-Origin')
+    response = jsonify(iris_labeled)
+    response.status_code = 200
 
-    return (responses)
+    return (response)
