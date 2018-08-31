@@ -10,11 +10,7 @@ CORS(app)
 @app.route('/restart', methods=['GET'])
 def restart():
     iris = dataset.Dataset()
-    iris_labeled = iris.getLabeledData()
-    iris_unlabeled = iris.getUnlabeledData()
-    iris_selected = iris.getEmptySelectedData()
-
-    iris_json = {'labeled': iris_labeled, 'unlabeled': iris_unlabeled, 'selected': iris_selected}
+    iris_json = iris.createRandomSampling()
 
     response = jsonify(iris_json)
     response.status_code = 200
@@ -23,10 +19,14 @@ def restart():
 
 @app.route('/label', methods=['POST'])
 def label():
-    iris = dataset.Dataset()
-    iris_labeled = iris.getLabeledData()
+    try:
+        payload = request.get_json()
+        iris = dataset.Dataset()
+        newLabels = iris.labelData(payload)
+        response = jsonify(newLabels)
+        response.status_code = 200
 
-    response = jsonify(iris_labeled)
-    response.status_code = 200
+    except Exception.message:
+        response = 'failure?'
 
     return (response)
