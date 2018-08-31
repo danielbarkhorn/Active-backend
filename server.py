@@ -12,15 +12,15 @@ def restart():
     iris = dataset.Dataset()
     iris_labeled = iris.getLabeledData()
     iris_unlabeled = iris.getUnlabeledData()
+    iris_selected = iris.getEmptySelectedData()
 
-    iris_json = {'labeled': iris_labeled, 'unlabeled': iris_unlabeled}
+    iris_json = {'labeled': iris_labeled, 'unlabeled': iris_unlabeled, 'selected': iris_selected}
 
     response = jsonify(iris_json)
     response.status_code = 200
 
     return (response)
 
-<<<<<<< Updated upstream
 @app.route('/label', methods=['POST'])
 def label():
     iris = dataset.Dataset()
@@ -30,9 +30,3 @@ def label():
     response.status_code = 200
 
     return (response)
-=======
-# @app.route('/label', methods=['POST'])
-# def label():
-#     try:
-#         unlabeled
->>>>>>> Stashed changes
