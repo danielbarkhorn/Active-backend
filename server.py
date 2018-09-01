@@ -3,6 +3,7 @@ import dataset
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import json
+import model
 
 app = Flask(__name__)
 CORS(app)
@@ -28,5 +29,27 @@ def label():
 
     except Exception.message:
         response = 'failure?'
+
+    return (response)
+
+@app.route('/activeSelect', methods=['POST'])
+def activeSelect():
+    try:
+        payload = request.get_json()
+        iris = dataset.Dataset()
+        features = iris.features
+        iris.loadPayload(payload)
+        numChosen = 3
+
+        svmModel = model.Model()
+        svmModel.fit(iris.get_X(), iris.get_Y())
+        active = svmModel.activeChoice(numChosen, iris.getUnlabeled())
+
+        chosen = {'labeled': iris.labeled, 'unlabeled': iris.unlabeledDict, 'selected': {features[i] : [a[i] for a in active] for i in range(len(features[:-1]))}}
+
+        response = jsonify(chosen)
+
+    except Exception.message:
+        response = 'failure'
 
     return (response)
