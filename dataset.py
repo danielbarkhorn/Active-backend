@@ -12,14 +12,19 @@ class Dataset:
         self.labels = self.masterData[features[-1]].unique()
         self.encoding = {self.labels[i] : i for i in range(len(self.labels))}
 
-    def createRandomSampling(self, percentLabeled=0.5, initLabeling=True, numLabeled=0,):
+    def createRandomSampling(self, percentLabeled=0.5, percentTest=0.3, initLabeling=True, numLabeled=0,):
         if numLabeled > 0:
-            self.labeled_shape = (size, self.masterShape[1])
+            self.labeled_shape = (numLabeled, self.masterShape[1])
         else:
-            self.labeled_shape = (int(self.masterShape[0]*percentLabeled), self.masterShape[1])
+            self.labeled_shape = (int(self.masterShape[0]*(percentLabeled + percentTest)), self.masterShape[1])
 
         isLabeled = [False] * self.masterShape[0]
         labeledInd = random.sample(range(self.masterShape[0]), self.labeled_shape[0])
+
+        testBreak = int(percentTest * self.masterShape[0])
+        testInd = labeledInd[0:testBreak]
+        labaledInd = labeledInd[testBreak:]
+
         for i in labeledInd:
             isLabeled[i] = True
 
@@ -41,10 +46,6 @@ class Dataset:
 
         self.labeled_X = labeledDF.iloc[:, :-1].values
         self.labeled_Y = [self.encoding[label] for label in labeledDF.iloc[:, -1]]
-
-        f = open("labeledData.txt", "a")
-        f.write(str(self.labeled_X))
-        f.write(str(self.labeled_Y))
 
         self.selectedData = {feat: [] for feat in self.features[:-1]}
 

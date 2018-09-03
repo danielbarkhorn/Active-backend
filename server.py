@@ -39,7 +39,8 @@ def activeSelect():
         iris = dataset.Dataset()
         features = iris.features
         iris.loadPayload(payload)
-        numChosen = 3
+
+        numChosen = int(payload['numChosen'])
 
         svmModel = model.Model()
         svmModel.fit(iris.get_X(), iris.get_Y())
