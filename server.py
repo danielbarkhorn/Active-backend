@@ -22,8 +22,9 @@ def restart():
 def label():
     try:
         payload = request.get_json()
+        numLabeled = int(payload['numLabeled'])
         iris = dataset.Dataset()
-        newLabels = iris.labelData(payload)
+        newLabels = iris.labelData(payload, numLabeled)
         response = jsonify(newLabels)
         response.status_code = 200
 
@@ -52,5 +53,28 @@ def activeSelect():
 
     except Exception.message:
         response = 'failure'
+
+    return (response)
+
+@app.route('/labelAndTest', methods=['POST'])
+def labelAndTest():
+    try:
+        payload = request.get_json()
+        numLabeled = int(payload['numLabeled'])
+        iris = dataset.Dataset()
+        response = iris.labelData(payload, numLabeled)
+        iris.loadPayload(payload)
+
+        svmModel = model.Model()
+        svmModel.fit(iris.get_X(), iris.get_Y())
+        results = svmModel.test(payload['test_X'], payload['test_Y'])
+
+        response['results'] = results
+
+        response = jsonify(response)
+        response.status_code = 200
+
+    except Exception.message:
+        response = 'failure?'
 
     return (response)

@@ -61,7 +61,7 @@ class Model(object):
             with open(fname, "a") as myfile:
                 myfile.write(report)
         else:
-            print(report)
+            return report
 
     def activeChoice(self, numChoices, unlabeled_X):
         Y_unlabeled_hat = self.predict(unlabeled_X)
