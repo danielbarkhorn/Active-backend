@@ -67,9 +67,16 @@ def labelAndTest():
 
         svmModel = model.Model()
         svmModel.fit(iris.get_X(), iris.get_Y())
-        results = svmModel.test(payload['test_X'], payload['test_Y'])
+
+        f = open('results.txt', mode='w')
+        f.write(str(iris.labels))
+
+        results = svmModel.test(payload['test_X'], payload['test_Y'], target_names=iris.labels)
 
         response['results'] = results
+
+        f = open('results.txt', mode='w')
+        f.write(results)
 
         response = jsonify(response)
         response.status_code = 200
