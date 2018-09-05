@@ -70,7 +70,7 @@ def labelAndTest():
 
         results = svmModel.test(payload['test_X'], payload['test_Y'], target_names=iris.labels)
         response['results'] = results
-        
+
         response = jsonify(response)
         response.status_code = 200
 
@@ -78,3 +78,11 @@ def labelAndTest():
         response = 'failure?'
 
     return (response)
+
+@app.route("/")
+def index():
+    return "Hello World!"
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=80, threaded=True)
