@@ -49,19 +49,20 @@ class Model(object):
 
         return self.classifier.coef_
 
-    def test(self, X, Y, fname=None):
+    def test(self, X, Y, fname=None, target_names=None):
         assert (self.is_fit), 'You have not fit the model'
-        report = str(self.sample) + " " + str(self.type) + " trained on " + str(self.trainedSize) + " datapoints"
+        report = str(self.type) + " trained on " + str(self.trainedSize) + " datapoints"
         if(self.PCA):
             report += " (PCA):\n"
         else:
             report += ":\n"
-        report += str(classification_report(Y,self.predict(X, proba=False))) + "\n"
+        labels = list(range(len(target_names)))
+        report += str(classification_report(Y, self.predict(X, proba=False), labels=labels, target_names=target_names)) + "\n"
         if(fname):
             with open(fname, "a") as myfile:
                 myfile.write(report)
         else:
-            print(report)
+            return report
 
     def activeChoice(self, numChoices, unlabeled_X):
         Y_unlabeled_hat = self.predict(unlabeled_X)

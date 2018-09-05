@@ -12,43 +12,50 @@ class Dataset:
         self.labels = self.masterData[features[-1]].unique()
         self.encoding = {self.labels[i] : i for i in range(len(self.labels))}
 
-    def createRandomSampling(self, percentLabeled=0.5, initLabeling=True, numLabeled=0,):
+    def createRandomSampling(self, percentLabeled=0.20, percentTest=0.35, initLabeling=True, numLabeled=0,):
         if numLabeled > 0:
-            self.labeled_shape = (size, self.masterShape[1])
+            self.labeled_shape = (numLabeled, self.masterShape[1])
         else:
-            self.labeled_shape = (int(self.masterShape[0]*percentLabeled), self.masterShape[1])
+            self.labeled_shape = (int(self.masterShape[0]*(percentLabeled + percentTest)), self.masterShape[1])
 
         isLabeled = [False] * self.masterShape[0]
+        isTest = [False] * self.masterShape[0]
         labeledInd = random.sample(range(self.masterShape[0]), self.labeled_shape[0])
+
+        testBreak = int(percentTest * self.masterShape[0])
+        testInd = labeledInd[0:testBreak]
+        labeledInd = labeledInd[testBreak:]
+
         for i in labeledInd:
             isLabeled[i] = True
+        for i in testInd:
+            isTest[i] = True
 
+        self.test_X = []
+        self.test_Y = []
         self.labels = self.masterData[self.features[-1]].unique()
         self.labeledData = {l : {feat : [] for feat in self.features[:-1]} for l in self.labels}
         self.unlabeledData = {feat : [] for feat in self.features[:-1]}
 
-        # Adding the labeled / unlabeled data
         for ind in range(self.masterShape[0]):
             if isLabeled[ind]:
                 label = self.masterData['label'][ind]
                 for feat in self.features[:-1]:
                     self.labeledData[label][feat].append(self.masterData[feat][ind])
+            elif isTest[ind]:
+                self.test_X.append(list(self.masterData.iloc[ind, :-1]))
+                self.test_Y.append(self.encoding[self.masterData.iloc[ind, -1]])
             else:
                 for feat in self.features[:-1]:
                     self.unlabeledData[feat].append(self.masterData[feat][ind])
 
         labeledDF = self.masterData.iloc[labeledInd]
-
         self.labeled_X = labeledDF.iloc[:, :-1].values
         self.labeled_Y = [self.encoding[label] for label in labeledDF.iloc[:, -1]]
 
-        f = open("labeledData.txt", "a")
-        f.write(str(self.labeled_X))
-        f.write(str(self.labeled_Y))
-
         self.selectedData = {feat: [] for feat in self.features[:-1]}
 
-        return {'labeled': self.labeledData, 'unlabeled': self.unlabeledData, 'selected': self.selectedData}
+        return {'test_X': self.test_X, 'test_Y':self.test_Y, 'labeled': self.labeledData, 'unlabeled': self.unlabeledData, 'selected': self.selectedData}
 
     def get_X(self):
         return self.labeled_X
@@ -67,6 +74,9 @@ class Dataset:
 
     def getEmptySelectedData(self):
         return self.selectedData
+
+    def getTestData(self):
+        return self.test
 
     def loadPayload(self, payload):
         unlabeled = payload['unlabeled']
@@ -90,12 +100,13 @@ class Dataset:
                 self.labeled_Y[labeledInd] = self.encoding[label]
                 labeledInd += 1
 
-    def labelData(self, payload):
+    def labelData(self, payload, numLabeled):
         unlabeled = payload['unlabeled']
         labeled = payload['labeled']
         selected= payload['selected']
 
         for selectedInd in range(len(selected[self.features[0]])):
+            numLabeled += 1
             selectedDP = {feat : selected[feat][selectedInd] for feat in self.features[:-1]}
             for unlabeledInd in range(len(unlabeled[self.features[0]])):
                 unlabeledDP = {feat : unlabeled[feat][unlabeledInd] for feat in self.features[:-1]}
@@ -111,4 +122,4 @@ class Dataset:
                         newClass[feat].append(selectedDP[feat])
                     break
 
-        return {'labeled':labeled, 'unlabeled':unlabeled, 'selected':{feat: [] for feat in self.features[:-1]}}
+        return {'numLabeled':numLabeled, 'labeled':labeled, 'unlabeled':unlabeled, 'selected':{feat: [] for feat in self.features[:-1]}}
