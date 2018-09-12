@@ -1,4 +1,6 @@
 # Python compiled files
 *.pyc
 
-README.md
+# Virtual Environment
+active-backend/*
+README.m
