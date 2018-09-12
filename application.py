@@ -1,5 +1,3 @@
-import scipy
-print('Here, at beginning of application.py')
 import os
 import dataset
 from flask import Flask, jsonify, request
