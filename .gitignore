@@ -8,3 +8,6 @@
 
 # Virtual Environment
 active-backend/*
+
+# Git 
+.DS_Store
