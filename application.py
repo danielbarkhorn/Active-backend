@@ -1,3 +1,5 @@
+import scipy
+print('Here, at beginning of application.py')
 import os
 import dataset
 from flask import Flask, jsonify, request
@@ -5,10 +7,10 @@ from flask_cors import CORS
 import json
 import model
 
-app = Flask(__name__)
-CORS(app)
+application = Flask(__name__)
+CORS(application)
 
-@app.route('/restart', methods=['GET'])
+@application.route('/restart', methods=['GET'])
 def restart():
     iris = dataset.Dataset()
     iris_json = iris.createRandomSampling()
@@ -18,7 +20,7 @@ def restart():
 
     return (response)
 
-@app.route('/label', methods=['POST'])
+@application.route('/label', methods=['POST'])
 def label():
     try:
         payload = request.get_json()
@@ -33,7 +35,7 @@ def label():
 
     return (response)
 
-@app.route('/activeSelect', methods=['POST'])
+@application.route('/activeSelect', methods=['POST'])
 def activeSelect():
     try:
         payload = request.get_json()
@@ -56,7 +58,7 @@ def activeSelect():
 
     return (response)
 
-@app.route('/labelAndTest', methods=['POST'])
+@application.route('/labelAndTest', methods=['POST'])
 def labelAndTest():
     try:
         payload = request.get_json()
@@ -70,7 +72,7 @@ def labelAndTest():
 
         results = svmModel.test(payload['test_X'], payload['test_Y'], target_names=iris.labels)
         response['results'] = results
-        
+
         response = jsonify(response)
         response.status_code = 200
 
@@ -78,3 +80,12 @@ def labelAndTest():
         response = 'failure?'
 
     return (response)
+
+@application.route("/")
+def index():
+    return "Hello World!"
+
+
+if __name__ == "__main__":
+    application.debug = True
+    application.run()

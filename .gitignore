@@ -1,2 +1,13 @@
 # Python Compiled files
 *.pyc
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+# Virtual Environment
+active-backend/*
+
+# Git 
+.DS_Store
