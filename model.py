@@ -46,8 +46,7 @@ class Model(object):
                 return self.classifier.predict(X)
 
     def getDecisionBoundary(self):
-
-        return self.classifier.coef_
+        return self.classifier.support_vectors_
 
     def test(self, X, Y, fname=None, target_names=None):
         assert (self.is_fit), 'You have not fit the model'

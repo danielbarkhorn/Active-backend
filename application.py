@@ -13,6 +13,13 @@ def restart():
     iris = dataset.Dataset()
     iris_json = iris.createRandomSampling()
 
+    svmModel = model.Model()
+    svmModel.fit(iris.get_X(), iris.get_Y())
+
+    iris_json['decisionData'] = svmModel.classifier.support_vectors_.tolist()
+
+    print(iris_json)
+
     response = jsonify(iris_json)
     response.status_code = 200
 
@@ -69,6 +76,7 @@ def labelAndTest():
         svmModel.fit(iris.get_X(), iris.get_Y())
 
         results = svmModel.test(payload['test_X'], payload['test_Y'], target_names=iris.labels)
+        response['decisionData'] = svmModel.classifier.support_vectors_.tolist()
         response['results'] = results
 
         response = jsonify(response)
