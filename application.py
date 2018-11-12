@@ -13,7 +13,6 @@ CORS(application)
 def restart():
     iris = dataset.Dataset('data/2d-active.csv', features=['X','Y','label'])
     iris_json = iris.createRandomSampling()
-    print('restart',len(iris.get_X()))
     svmModel = model.Model()
     svmModel.fit(iris.get_X(), iris.get_Y())
 
@@ -32,16 +31,17 @@ def label():
         payload = request.get_json()
         numLabeled = int(payload['numLabeled'])
         iris = dataset.Dataset('data/2d-active.csv', features=['X','Y','label'])
+
         iris.loadPayload(payload)
         labelResponse = iris.labelData(payload, numLabeled)
         iris.loadPayload(labelResponse)
 
         svmModel = model.Model()
-        print('labeled',len(iris.get_X()))
         svmModel.fit(iris.get_X(), iris.get_Y())
         labelResponse['decisionData'] = svmModel.classifier.support_vectors_.tolist()
         labelResponse['decisionCoef'] = svmModel.classifier.coef_.tolist()
         labelResponse['decisionInt'] = svmModel.classifier.intercept_.tolist()
+        print(labelResponse['decisionInt'])
 
         response = jsonify(labelResponse)
         response.status_code = 200
@@ -66,6 +66,8 @@ def activeSelect():
         active = svmModel.activeChoice(numChosen, iris.getUnlabeled())
 
         chosen = {'labeled': iris.labeled, 'unlabeled': iris.unlabeledDict, 'selected': {features[i] : [a[i] for a in active] for i in range(len(features[:-1]))}}
+        chosen['decisionCoef'] = svmModel.classifier.coef_.tolist()
+        chosen['decisionInt'] = svmModel.classifier.intercept_.tolist()
 
         response = jsonify(chosen)
 
@@ -79,15 +81,18 @@ def labelAndTest():
     try:
         payload = request.get_json()
         numLabeled = int(payload['numLabeled'])
-        iris = dataset.Dataset()
-        response = iris.labelData(payload, numLabeled)
+        iris = dataset.Dataset('data/2d-active.csv', features=['X','Y','label'])
         iris.loadPayload(payload)
+        response = iris.labelData(payload, numLabeled)
+        iris.loadPayload(response)
 
         svmModel = model.Model()
         svmModel.fit(iris.get_X(), iris.get_Y())
 
         results = svmModel.test(payload['test_X'], payload['test_Y'], target_names=iris.labels)
         response['results'] = results
+        response['decisionCoef'] = svmModel.classifier.coef_.tolist()
+        response['decisionInt'] = svmModel.classifier.intercept_.tolist()
 
         response = jsonify(response)
         response.status_code = 200
