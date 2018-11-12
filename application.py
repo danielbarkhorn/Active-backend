@@ -1,5 +1,4 @@
 import scipy
-print('Here, at beginning of application.py')
 import os
 import dataset
 from flask import Flask, jsonify, request
@@ -12,7 +11,7 @@ CORS(application)
 
 @application.route('/restart', methods=['GET'])
 def restart():
-    iris = dataset.Dataset()
+    iris = dataset.Dataset('data/2d-active.csv', features=['X','Y','label'])
     iris_json = iris.createRandomSampling()
 
     response = jsonify(iris_json)
@@ -27,6 +26,7 @@ def label():
         numLabeled = int(payload['numLabeled'])
         iris = dataset.Dataset()
         newLabels = iris.labelData(payload, numLabeled)
+        print(newLabels)
         response = jsonify(newLabels)
         response.status_code = 200
 
@@ -39,7 +39,7 @@ def label():
 def activeSelect():
     try:
         payload = request.get_json()
-        iris = dataset.Dataset()
+        iris = dataset.Dataset('data/2d-active.csv', features=['X','Y','label'])
         features = iris.features
         iris.loadPayload(payload)
 
