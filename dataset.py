@@ -5,14 +5,25 @@ import random
 from functools import reduce
 
 class Dataset:
-    def __init__(self, filename='./data/iris.csv', features=['sepal length', 'sepal width', 'petal length', 'petal width', 'label']):
-        self.masterData = pd.read_csv(filename, names=features)
-        self.features = features
+    def __init__(self, filename=None, features=['sepal length', 'sepal width', 'petal length', 'petal width', 'label']):
+        if filename:
+            self.masterData = pd.read_csv(filename, names=features)
+            self.features = features
+        else:
+            self.masterData = pd.DataFrame(np.random.randn(200, 2), columns=['X', 'Y'])
+            for i in range(100):
+                self.masterData.iloc[i] += .25
+            for i in range(100,200):
+                self.masterData.iloc[i] -= .25
+            self.masterData['label'] = ['Class A']*100 + ['Class B']*100
+            self.features = ['X', 'Y', 'label']
+
         self.masterShape = self.masterData.shape
         self.labels = self.masterData[features[-1]].unique()
+        print(self.masterData)
         self.encoding = {self.labels[i] : i for i in range(len(self.labels))}
 
-    def createRandomSampling(self, percentLabeled=0.20, percentTest=0.35, initLabeling=True, numLabeled=0,):
+    def createRandomSampling(self, percentLabeled=0.20, percentTest=0.2, initLabeling=True, numLabeled=0,):
         if numLabeled > 0:
             self.labeled_shape = (numLabeled, self.masterShape[1])
         else:
@@ -47,7 +58,8 @@ class Dataset:
                 self.test_Y.append(self.encoding[self.masterData.iloc[ind, -1]])
             else:
                 for feat in self.features[:-1]:
-                    self.unlabeledData[feat].append(self.masterData[feat][ind])
+                    temp = self.masterData[feat][ind]
+                    self.unlabeledData[feat].append(temp)
 
         labeledDF = self.masterData.iloc[labeledInd]
         self.labeled_X = labeledDF.iloc[:, :-1].values
@@ -90,6 +102,7 @@ class Dataset:
         for unlabeledInd in range(len(unlabeled[self.features[0]])):
             self.unlabeled[unlabeledInd] = [unlabeled[feat][unlabeledInd] for feat in self.features[:-1]]
 
+        print(self.labels)
         numLabeled = sum([len(labeled[label][self.features[0]]) for label in self.labels])
         self.labeled_X = np.zeros((numLabeled, len(self.features[:-1])))
         self.labeled_Y = np.zeros((numLabeled, 1))
