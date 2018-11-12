@@ -24,9 +24,8 @@ def label():
     try:
         payload = request.get_json()
         numLabeled = int(payload['numLabeled'])
-        iris = dataset.Dataset()
+        iris = dataset.Dataset('data/2d-active.csv', features=['X','Y','label'])
         newLabels = iris.labelData(payload, numLabeled)
-        print(newLabels)
         response = jsonify(newLabels)
         response.status_code = 200
 

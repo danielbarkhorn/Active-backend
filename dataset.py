@@ -23,7 +23,7 @@ class Dataset:
         print(self.masterData)
         self.encoding = {self.labels[i] : i for i in range(len(self.labels))}
 
-    def createRandomSampling(self, percentLabeled=0.20, percentTest=0.35, initLabeling=True, numLabeled=0,):
+    def createRandomSampling(self, percentLabeled=0.20, percentTest=0.2, initLabeling=True, numLabeled=0,):
         if numLabeled > 0:
             self.labeled_shape = (numLabeled, self.masterShape[1])
         else:
