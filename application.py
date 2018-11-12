@@ -13,6 +13,13 @@ CORS(application)
 def restart():
     iris = dataset.Dataset('data/2d-active.csv', features=['X','Y','label'])
     iris_json = iris.createRandomSampling()
+    print('restart',len(iris.get_X()))
+    svmModel = model.Model()
+    svmModel.fit(iris.get_X(), iris.get_Y())
+
+    iris_json['decisionData'] = svmModel.classifier.support_vectors_.tolist()
+    iris_json['decisionCoef'] = svmModel.classifier.coef_.tolist()
+    iris_json['decisionInt'] = svmModel.classifier.intercept_.tolist()
 
     response = jsonify(iris_json)
     response.status_code = 200
@@ -25,8 +32,18 @@ def label():
         payload = request.get_json()
         numLabeled = int(payload['numLabeled'])
         iris = dataset.Dataset('data/2d-active.csv', features=['X','Y','label'])
-        newLabels = iris.labelData(payload, numLabeled)
-        response = jsonify(newLabels)
+        iris.loadPayload(payload)
+        labelResponse = iris.labelData(payload, numLabeled)
+        iris.loadPayload(labelResponse)
+
+        svmModel = model.Model()
+        print('labeled',len(iris.get_X()))
+        svmModel.fit(iris.get_X(), iris.get_Y())
+        labelResponse['decisionData'] = svmModel.classifier.support_vectors_.tolist()
+        labelResponse['decisionCoef'] = svmModel.classifier.coef_.tolist()
+        labelResponse['decisionInt'] = svmModel.classifier.intercept_.tolist()
+
+        response = jsonify(labelResponse)
         response.status_code = 200
 
     except Exception.message:

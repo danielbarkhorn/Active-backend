@@ -20,7 +20,6 @@ class Dataset:
 
         self.masterShape = self.masterData.shape
         self.labels = self.masterData[features[-1]].unique()
-        print(self.masterData)
         self.encoding = {self.labels[i] : i for i in range(len(self.labels))}
 
     def createRandomSampling(self, percentLabeled=0.20, percentTest=0.2, initLabeling=True, numLabeled=0,):
@@ -102,7 +101,6 @@ class Dataset:
         for unlabeledInd in range(len(unlabeled[self.features[0]])):
             self.unlabeled[unlabeledInd] = [unlabeled[feat][unlabeledInd] for feat in self.features[:-1]]
 
-        print(self.labels)
         numLabeled = sum([len(labeled[label][self.features[0]]) for label in self.labels])
         self.labeled_X = np.zeros((numLabeled, len(self.features[:-1])))
         self.labeled_Y = np.zeros((numLabeled, 1))
