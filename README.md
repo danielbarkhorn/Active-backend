@@ -1,4 +1,7 @@
 # Active-backend
+
+## Demo is OFFLINE
+
 Flask API for Active Learning demo
 
 ### Set up development environment
